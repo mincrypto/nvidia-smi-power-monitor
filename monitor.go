@@ -86,14 +86,14 @@ func queryNV() (string, error) {
 	//}
 	outByte, errOut := cmd.CombinedOutput()	
 	
+	if (ctx.Err() != nil ) {
+		return "", ctx.Err()
+	}
+	
 	fmt.Println(time.Now().Format("2006-01-02 15:04:05")," After read output")
 	if errOut != nil {
 		fmt.Println("running nvidia-smi failed")
 		return "", errOut
-	}
-
-	if (ctx.Err() != nil ) {
-		return "", ctx.Err()
 	}
 	
 	
