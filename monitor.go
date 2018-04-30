@@ -113,6 +113,8 @@ func terminate() {
 
 func onError() {
 
+	fmt.Println("Execute onError")
+
 	execCmd := strings.Split(cfg.onErrorExec, ";")
 
 	cmd := exec.Command(execCmd[0], execCmd[1:]...)
