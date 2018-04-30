@@ -39,7 +39,7 @@ func main() {
 	switch nvErr {
 	case context.DeadlineExceeded:
 		msg := fmt.Sprintln(time.Now().Format("2006-01-02 15:04:05"),"GPU-Error: nvidia-smi timed out after ", cfg.nvTimeout.Seconds(), " seconds.")
-		err := NewErrGpu(-1, lastGpuInfos, strings.TrimSpace(out))
+		err := NewErrGpu(-1, lastGpuInfos, msg)
 		errors = append(errors, err)		
 		
 	case nil: // No error
