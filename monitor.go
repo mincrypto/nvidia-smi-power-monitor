@@ -77,24 +77,25 @@ func queryNV() (string, error) {
 	defer cancel() // The cancel should be deferred so resources are cleaned up
 
 	fmt.Println(time.Now().Format("2006-01-02 15:04:05")," Exec nv smi command")
-	cmd := exec.Command(cfg.nvidia_smi_cmd_args[0], cfg.nvidia_smi_cmd_args[1:]...)
+	cmd := exec.CommandContext(ctx,cfg.nvidia_smi_cmd_args[0], cfg.nvidia_smi_cmd_args[1:]...)
 	fmt.Println(time.Now().Format("2006-01-02 15:04:05")," After exec nv smi command")
 
-	select {
-		case <-ctx.Done():
+	//select {
+	//	case <-ctx.Done():
 		//break 
-	}
+	//}
+	outByte, errOut := cmd.CombinedOutput()	
 	
-	if (ctx.Err() != nil) {
-		return "", ctx.Err()
-	}
-	
-	outByte, errOut := cmd.CombinedOutput()
-fmt.Println(time.Now().Format("2006-01-02 15:04:05")," After read output")
+	fmt.Println(time.Now().Format("2006-01-02 15:04:05")," After read output")
 	if errOut != nil {
 		fmt.Println("running nvidia-smi failed")
 		return "", errOut
 	}
+
+	if (ctx.Err() != nil ) {
+		return "", ctx.Err()
+	}
+	
 	
 	// Convert to UNIX-style EOL
 	out := strings.Replace(string(outByte), "\r", "", -1)
