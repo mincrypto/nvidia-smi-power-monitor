@@ -2,16 +2,29 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
-var gpuInfos []GPUinfo
+var lastGpuInfos []GPUinfo
 
 //regexStrWatt := "(\\d+\\.\\d+) W, (\\d+\\.\\d+) W"
 var regExAllGPUValues *regexp.Regexp
 var regExHandleLoss *regexp.Regexp
+
+func getLastGpuInfo(idx_from int, idx_to int) []GPUinfo {
+
+	ret := make([]GPUinfo, idx_to-idx_from+1)
+
+	// Copy data if exists
+	for i := idx_from; i <= int(math.Min(float64(len(lastGpuInfos)-1), float64(idx_to))); i++ {
+
+		ret[i-idx_from] = lastGpuInfos[i]
+	}
+	return ret
+}
 
 func parseInit() {
 
@@ -31,7 +44,7 @@ func parseNvOut(out string) []error {
 	// Look for "handlo loss" error in nvidia-smi output
 	matches = regExHandleLoss.FindStringSubmatch(out)
 	if matches != nil {
-		err := NewErrGpu(-1, gpuInfos, strings.TrimSpace(out))
+		err := NewErrGpu(-1, lastGpuInfos, strings.TrimSpace(out))
 		errors = append(errors, err)
 		return errors
 	}
@@ -46,7 +59,7 @@ func parseNvOut(out string) []error {
 			msg := "GPU" + "i" + "ecountered an error.\n" +
 				"The follow data was read:\n" +
 				outLines[i] + "\n"
-			err := NewErrGpu(i, gpuInfos[i:i], msg)
+			err := NewErrGpu(i, getLastGpuInfo(i, i), msg)
 			errors = append(errors, err)
 			continue
 		}
@@ -75,13 +88,13 @@ func parseNvOut(out string) []error {
 		if tmp.PowerDraw/tmp.PowerLimit < cfg.minPowerDrawPC/100 {
 			msg := fmt.Sprintf("GPU %d is Idle.\n"+
 				"Power consumpiton is %f out of %f", i, tmp.PowerDraw, tmp.PowerLimit)
-			err := NewErrGpu(i, gpuInfos[i:i], msg)
+			err := NewErrGpu(i, getLastGpuInfo(i, i), msg)
 			errors = append(errors, err)
 			continue
 		}
 	}
 	if len(errors) == 0 {
-		gpuInfos = newGPUinfos
+		lastGpuInfos = newGPUinfos
 	}
 	return errors
 
