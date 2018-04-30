@@ -53,8 +53,8 @@ func main() {
 
 		for _, el := range errors {
 			fmt.Println(el.Error())
-
 		}
+		onError()
 
 	}
 
@@ -95,17 +95,17 @@ func terminate() {
 	os.Exit(1)
 }
 
-func onError(cmdStr string) {
+func onError() {
 
-	cmd := exec.Command(cmdStr)
+	cmd := exec.Command(cfg.onErrorExec)
 	err := cmd.Run()
 
 	if err != nil {
 
 		if _, ok := err.(*exec.ExitError); ok {
-			os.Stderr.WriteString("'" + cmdStr + "'" + " executed not successfull.")
+			os.Stderr.WriteString("'" + cfg.onErrorExec + "'" + " executed not successfull.")
 		} else {
-			os.Stderr.WriteString("'" + cmdStr + "'" + " could not be started.")
+			os.Stderr.WriteString("'" + cfg.onErrorExec + "'" + " could not be started.")
 		}
 
 	}
