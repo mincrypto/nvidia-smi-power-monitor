@@ -51,7 +51,7 @@ func main() {
 
 	//Parse output
 
-	errors = append(errors,parseNvOut(out))
+	errors = append(errors,parseNvOut(out)...)
 
 	if len(errors) > 0 {
 
