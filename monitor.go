@@ -85,7 +85,7 @@ func queryNV() (string, error) {
 		//break 
 	}
 	
-	if (ctx.Err() != null) {
+	if (ctx.Err() != nil) {
 		return "", ctx.Err()
 	}
 	
