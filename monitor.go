@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 var cfg *Config
@@ -70,10 +71,27 @@ func queryNV() (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.nvTimeout)
 	defer cancel() // The cancel should be deferred so resources are cleaned up
 
+	fmt.Println(time.Now()," Exec nv smi command")
 	cmd := exec.Command(cfg.nvidia_smi_cmd_args[0], cfg.nvidia_smi_cmd_args[1:]...)
+	fmt.Println(time.Now()," After exec nv smi command")
+
+go func() {
+		select {
+		case <-ctx.Done():
+		fmt.Println(time.Now(),"Timeout:", string(time.Now().Format("05.00")))
+		err := ctx.Err()
+		if err != nil {
+			fmt.Println(time.Now(),"in <-ctx.Done(): ", err)
+		}
+fmt.Println(time.Now(),"Before wait")	
+
+fmt.Println(time.Now(),"After wait")
+	break 
+	}
+	}()
 
 	outByte, errOut := cmd.CombinedOutput()
-
+fmt.Println(time.Now()," After read output")
 	if errOut != nil {
 		fmt.Println("running nvidia-smi failed")
 		return "", errOut
