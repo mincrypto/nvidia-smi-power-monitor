@@ -107,7 +107,7 @@ fmt.Println(time.Now().Format("2006-01-02 15:04:05")," After read output")
 
 func terminate() {
 
-	fmt.Println(time.Now().Format("2006-01-02 15:04:05") "Terminating due to internal error.")
+	fmt.Println(time.Now().Format("2006-01-02 15:04:05"), "Terminating due to internal error.")
 	os.Exit(1)
 }
 
