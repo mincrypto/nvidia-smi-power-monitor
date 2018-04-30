@@ -55,7 +55,7 @@ func parseNvOut(out string) []error {
 
 	for i := 0; i < len(outLines)-1; i++ {
 
-		if strings.Contains(outLines[i], "error") {
+		if strings.Contains(outLines[i], "[Unknown Error]") {
 			msg := "GPU" + "i" + "ecountered an error.\n" +
 				"The follow data was read:\n" +
 				outLines[i] + "\n"
@@ -69,7 +69,7 @@ func parseNvOut(out string) []error {
 		tmp := GPUinfo{}
 
 		if matches == nil {
-			fmt.Println("Warning: Unable to parse line of nvidia-smi output: ", outLines[i])
+			fmt.Println(time.Now().Format("2006-01-02 15:04:05"),"Warning: Unable to parse line of nvidia-smi output: ", outLines[i])
 		} else {
 			tmp.ID, _ = strconv.Atoi(matches[1])
 			tmp.PciBus = matches[2]

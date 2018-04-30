@@ -15,7 +15,7 @@ var cfg *Config
 
 func main() {
 
-	fmt.Println("\nStarting Nvidia GPU monitor")
+	fmt.Println("\n",time.Now().Format("2006-01-02 15:04:05"),"Starting Nvidia GPU monitor")
 
 	cfg = &Config{}
 	err := cfg.init()
@@ -34,9 +34,14 @@ func main() {
 	// The error returned by cmd.Output() will be OS specific based on what
 	// happens when a process is killed.
 
+	errors := []error{}
+	
 	switch nvErr {
 	case context.DeadlineExceeded:
-		fmt.Println("GPU-Error: nvidia-smi timed out after ", cfg.nvTimeout.Seconds(), " seconds.")
+		msg := fmt.Sprintln(time.Now().Format("2006-01-02 15:04:05"),"GPU-Error: nvidia-smi timed out after ", cfg.nvTimeout.Seconds(), " seconds.")
+		err := NewErrGpu(-1, lastGpuInfos, strings.TrimSpace(out))
+		errors = append(errors, err)		
+		
 	case nil: // No error
 	default:
 		fmt.Println("nvidia-smi could not be started.")
@@ -46,11 +51,11 @@ func main() {
 
 	//Parse output
 
-	errors := parseNvOut(out)
+	errors = appen(errors,parseNvOut(out))
 
 	if len(errors) > 0 {
 
-		fmt.Println("Errors found:")
+		fmt.Println(time.Now().Format("2006-01-02 15:04:05"),"Errors found:")
 
 		for _, el := range errors {
 			fmt.Println(el.Error())
@@ -71,46 +76,38 @@ func queryNV() (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.nvTimeout)
 	defer cancel() // The cancel should be deferred so resources are cleaned up
 
-	fmt.Println(time.Now()," Exec nv smi command")
+	fmt.Println(time.Now().Format("2006-01-02 15:04:05")," Exec nv smi command")
 	cmd := exec.Command(cfg.nvidia_smi_cmd_args[0], cfg.nvidia_smi_cmd_args[1:]...)
-	fmt.Println(time.Now()," After exec nv smi command")
+	fmt.Println(time.Now().Format("2006-01-02 15:04:05")," After exec nv smi command")
 
 	select {
 		case <-ctx.Done():
 		//break 
 	}
 	
-	switch ctx.Err() {
-	case context.DeadlineExceeded:
-		fmt.Println("GPU-Error: nvidia-smi timed out after ", cfg.nvTimeout.Seconds(), " seconds.")
+	if (ctx.Err() != null) {
 		return "", ctx.Err()
-	case nil: // No error
-	default:
-		fmt.Println("nvidia-smi could not be started.")
-		return "", ctx.Err()
-		//terminate()
 	}
-
+	
 	outByte, errOut := cmd.CombinedOutput()
-fmt.Println(time.Now()," After read output")
+fmt.Println(time.Now().Format("2006-01-02 15:04:05")," After read output")
 	if errOut != nil {
 		fmt.Println("running nvidia-smi failed")
 		return "", errOut
-	} else {
-		fmt.Println("nvidia-smi run successfull")
 	}
+	
 	// Convert to UNIX-style EOL
 	out := strings.Replace(string(outByte), "\r", "", -1)
-	fmt.Println("nvidia-smi raw cmbined output:")
+	fmt.Println(time.Now().Format("2006-01-02 15:04:05"),"nvidia-smi raw cmbined output:")
 	fmt.Println(out)
 
-	return out, ctx.Err()
+	return out, nil
 
 }
 
 func terminate() {
 
-	fmt.Println("Terminating due to internal error.")
+	fmt.Println(time.Now().Format("2006-01-02 15:04:05") "Terminating due to internal error.")
 	os.Exit(1)
 }
 
