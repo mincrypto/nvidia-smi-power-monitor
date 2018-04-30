@@ -97,7 +97,9 @@ func terminate() {
 
 func onError() {
 
-	cmd := exec.Command(cfg.onErrorExec)
+	execCmd := strings.Split(cfg.onErrorExec, ";")
+
+	cmd := exec.Command(execCmd[0], execCmd[1:]...)
 	err := cmd.Run()
 
 	if err != nil {

@@ -28,7 +28,7 @@ func (c *Config) init() error {
 	//Optional Arguments
 	flag.DurationVar(&c.nvTimeout, "nvTimeout", 60*time.Second, "nvidia-smi timeout as Duration, e.g. 3s for 3 seconds. Type: string. Default: 60s")
 	flag.DurationVar(&c.nvPeriod, "nvPeriod", 60*time.Second, "Time between nvidia-smi calls. Type: string. Default: 60s")
-	flag.StringVar(&c.onErrorExec, "onErrorExec", "", "Execute command on error. Don't add arguments! Type: string. Default: Do nothing, only report")
+	flag.StringVar(&c.onErrorExec, "onErrorExec", "", "Execute command on error. Seperate comamnd and arguments by \";\" ! Type: string. Default: Do nothing, only report")
 	flag.Float64Var(&c.minPowerDrawPC, "minPowerUse", 50, "Idle Treshold for GPU power-draw readings in percent. Type: integer. Default: 50")
 
 	flag.Parse()
