@@ -75,20 +75,21 @@ func queryNV() (string, error) {
 	cmd := exec.Command(cfg.nvidia_smi_cmd_args[0], cfg.nvidia_smi_cmd_args[1:]...)
 	fmt.Println(time.Now()," After exec nv smi command")
 
-go func() {
-		select {
+	select {
 		case <-ctx.Done():
-		fmt.Println(time.Now(),"Timeout:", string(time.Now().Format("05.00")))
-		err := ctx.Err()
-		if err != nil {
-			fmt.Println(time.Now(),"in <-ctx.Done(): ", err)
-		}
-fmt.Println(time.Now(),"Before wait")	
-
-fmt.Println(time.Now(),"After wait")
-	break 
+		//break 
 	}
-	}()
+	
+	switch ctx.Err() {
+	case context.DeadlineExceeded:
+		fmt.Println("GPU-Error: nvidia-smi timed out after ", cfg.nvTimeout.Seconds(), " seconds.")
+		return "", ctx.Err()
+	case nil: // No error
+	default:
+		fmt.Println("nvidia-smi could not be started.")
+		return "", ctx.Err()
+		//terminate()
+	}
 
 	outByte, errOut := cmd.CombinedOutput()
 fmt.Println(time.Now()," After read output")
